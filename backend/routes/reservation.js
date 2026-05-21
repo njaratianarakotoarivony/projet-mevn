@@ -1,9 +1,9 @@
 import { Router } from 'express';
 const router = Router();
-import { createReservation, getAllReservations } from '../controllers/reservationController';
-import auth from '../middleware/auth';
+import { createReservation, getAllReservations } from '../services/reservation/controllers/reservationController.js';
+import { verifyToken } from '../services/reservation/middlewares/reservationMiddleware.js';
 
-router.post('/', auth, createReservation);
-router.get('/', auth, getAllReservations);
+router.post('/', verifyToken, createReservation);
+router.get('/', verifyToken, getAllReservations);
 
 export default router;

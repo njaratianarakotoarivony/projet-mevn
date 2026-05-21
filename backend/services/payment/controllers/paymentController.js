@@ -1,4 +1,6 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'votre_cle_stripe');
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'votre_cle_stripe');
 
 const processPayment = async (req, res, next) => {
   try {
@@ -39,4 +41,4 @@ const refundPayment = async (req, res, next) => {
   }
 };
 
-module.exports = { processPayment, refundPayment };
+export { processPayment, refundPayment };

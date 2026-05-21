@@ -1,6 +1,7 @@
 import { Router } from 'express';
+import { register, login } from '../services/auth/controllers/authController.js';
+
 const router = Router();
-import { register, login } from '../controllers/authController';
 
 router.post('/register', register);
 router.post('/login', login);

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 const router = Router();
-import { verify2FA } from '../controllers/2faController';
+import { verify2FA } from '../services/2fa/controllers/2faController.js';
 
 router.post('/verify-2fa', verify2FA);
 

@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const roomSchema = new mongoose.Schema({
+const roomSchema = new Schema({
   name: {
     type: String,
     required: true,
@@ -37,4 +37,4 @@ const roomSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('Room', roomSchema);
+export default model('Room', roomSchema);

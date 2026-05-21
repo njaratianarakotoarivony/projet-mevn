@@ -1,4 +1,4 @@
-const Room = require('../models/Room');
+import Room from '../models/Room.js';
 
 const getAllRooms = async (req, res, next) => {
   try {
@@ -55,4 +55,4 @@ const deleteRoom = async (req, res, next) => {
   }
 };
 
-module.exports = { getAllRooms, getRoomById, createRoom, updateRoom, deleteRoom };
+export { getAllRooms, getRoomById, createRoom, updateRoom, deleteRoom };

@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'votre_secret_jwt';
 
@@ -37,4 +37,4 @@ const validatePayment = (req, res, next) => {
   next();
 };
 
-module.exports = { verifyToken, validatePayment };
+export { verifyToken, validatePayment };

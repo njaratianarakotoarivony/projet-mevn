@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const User = require('../user/models/User');
+import jwt from 'jsonwebtoken';
+import User from '../../user/models/User.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'votre_secret_jwt';
 
@@ -31,4 +31,4 @@ const checkAdmin = async (req, res, next) => {
   }
 };
 
-module.exports = { verifyToken, checkAdmin };
+export { verifyToken, checkAdmin };

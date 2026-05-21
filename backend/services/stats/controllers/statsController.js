@@ -1,5 +1,5 @@
-const Reservation = require('../reservation/models/Reservation');
-const Room = require('../room/models/Room');
+import Reservation from '../../reservation/models/Reservation.js';
+import Room from '../../room/models/Room.js';
 
 const getStats = async (req, res, next) => {
   try {
@@ -33,4 +33,4 @@ const getStats = async (req, res, next) => {
   }
 };
 
-module.exports = { getStats };
+export { getStats };

@@ -18,4 +18,4 @@ const verify2FA = (req, res, next) => {
   }
 };
 
-module.exports = { verify2FA };
+export { verify2FA };

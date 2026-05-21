@@ -1,13 +1,13 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const reservationSchema = new mongoose.Schema({
+const reservationSchema = new Schema({
   roomId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'Room',
     required: true,
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
@@ -34,4 +34,4 @@ const reservationSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('Reservation', reservationSchema);
+export default model('Reservation', reservationSchema);

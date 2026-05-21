@@ -1,4 +1,4 @@
-const User = require('../user/models/User');
+import User from '../../user/models/User.js';
 
 const resetPassword = async (req, res, next) => {
   try {
@@ -36,4 +36,4 @@ const requestReset = async (req, res, next) => {
   }
 };
 
-module.exports = { resetPassword, requestReset };
+export { resetPassword, requestReset };

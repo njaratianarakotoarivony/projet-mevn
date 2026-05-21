@@ -1,8 +1,8 @@
 import { Router } from 'express';
 const router = Router();
-import { getStats } from '../controllers/statsController';
-import auth from '../middleware/auth';
+import { getStats } from '../services/stats/controllers/statsController.js';
+import { verifyToken } from '../services/stats/middlewares/statsMiddleware.js';
 
-router.get('/', auth, getStats);
+router.get('/', verifyToken, getStats);
 
 export default router;

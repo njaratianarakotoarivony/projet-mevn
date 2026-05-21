@@ -1,4 +1,4 @@
-const Reservation = require('../models/Reservation');
+import Reservation from '../models/Reservation.js';
 
 const createReservation = async (req, res, next) => {
   try {
@@ -57,4 +57,4 @@ const cancelReservation = async (req, res, next) => {
   }
 };
 
-module.exports = { createReservation, getAllReservations, getReservationById, cancelReservation };
+export { createReservation, getAllReservations, getReservationById, cancelReservation };
