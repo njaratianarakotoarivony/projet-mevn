@@ -1,8 +1,8 @@
-const express = require('express');
-const router = express.Router();
-const { processPayment } = require('../controllers/paymentController');
-const auth = require('../middleware/auth');
+import { Router } from 'express';
+const router = Router();
+import { processPayment } from '../controllers/paymentController';
+import auth from '../middleware/auth';
 
 router.post('/pay', auth, processPayment);
 
-module.exports = router;
+export default router;

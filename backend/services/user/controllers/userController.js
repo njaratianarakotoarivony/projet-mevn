@@ -1,8 +1,8 @@
-const User = require('../models/User');
+import { findById, findByIdAndUpdate, findByIdAndDelete } from '../models/User';
 
 const getUserById = async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.id).select('-password');
+    const user = await findById(req.params.id).select('-password');
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
@@ -15,7 +15,7 @@ const getUserById = async (req, res, next) => {
 const updateUser = async (req, res, next) => {
   try {
     const { password, ...updateData } = req.body;
-    const user = await User.findByIdAndUpdate(req.params.id, updateData, { new: true }).select('-password');
+    const user = await findByIdAndUpdate(req.params.id, updateData, { new: true }).select('-password');
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
@@ -27,7 +27,7 @@ const updateUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
+    const user = await findByIdAndDelete(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
@@ -37,4 +37,4 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-module.exports = { getUserById, updateUser, deleteUser };
+export default { getUserById, updateUser, deleteUser };

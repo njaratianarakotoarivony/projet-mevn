@@ -1,8 +1,8 @@
-const express = require('express');
-const router = express.Router();
-const { getAllRooms, getRoomById } = require('../controllers/roomController');
+import { Router } from 'express';
+const router = Router();
+import { getAllRooms, getRoomById } from '../controllers/roomController';
 
 router.get('/', getAllRooms);
 router.get('/:id', getRoomById);
 
-module.exports = router;
+export default router;

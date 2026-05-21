@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
+import { connect } from 'mongoose';
 
 const connectDB = async () => {
   try {
     const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/hotel_management';
-    await mongoose.connect(mongoURI);
+    await connect(mongoURI);
     console.log('MongoDB connecté avec succès.');
   } catch (err) {
     console.error('Erreur de connexion MongoDB :', err.message);
@@ -11,4 +11,4 @@ const connectDB = async () => {
   }
 };
 
-module.exports = connectDB;
+export default connectDB;

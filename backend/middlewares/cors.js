@@ -1,8 +1,8 @@
-const cors = require('cors');
+import cors from 'cors';
 
 const corsMiddleware = cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:8080',
   credentials: true,
 });
 
-module.exports = corsMiddleware;
+export default corsMiddleware;
