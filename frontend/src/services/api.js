@@ -7,7 +7,7 @@ const api = axios.create({
   },
 });
 
-// Request interceptor
+// Ajoute automatiquement le token JWT à chaque requête.
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -16,16 +16,14 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor
+// Déconnecte et redirige vers /auth en cas de 401 (sauf si déjà sur /auth).
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && window.location.pathname !== '/auth') {
       localStorage.removeItem('token');
       window.location.href = '/auth';
     }
@@ -33,44 +31,46 @@ api.interceptors.response.use(
   }
 );
 
-// Payment API calls
-export const paymentAPI = {
-  // Create a new payment
-  createPayment: (paymentData) => api.post('/payments', paymentData),
-  
-  // Get all payments for a user
-  getPayments: () => api.get('/payments'),
-  
-  // Get payment by ID
-  getPaymentById: (paymentId) => api.get(`/payments/${paymentId}`),
-  
-  // Process Stripe payment
-  processStripePayment: (paymentData) => api.post('/payments/stripe', paymentData),
-  
-  // Process PayPal payment
-  processPayPalPayment: (paymentData) => api.post('/payments/paypal', paymentData),
-  
-  // Refund payment
-  refundPayment: (paymentId) => api.post(`/payments/${paymentId}/refund`),
+// --- Auth ---
+export const authAPI = {
+  login: (email, password) => api.post('/auth/login', { email, password }),
+  register: (name, email, password) => api.post('/auth/register', { name, email, password }),
+  me: () => api.get('/auth/me'),
 };
 
-// Availability API calls
-export const availabilityAPI = {
-  // Check room availability
-  checkAvailability: (searchParams) => api.get('/rooms/availability', { params: searchParams }),
-  
-  // Get available rooms for specific dates
-  getAvailableRooms: (checkIn, checkOut) => api.get(`/rooms/available?checkIn=${checkIn}&checkOut=${checkOut}`),
-  
-  // Get room details
-  getRoomDetails: (roomId) => api.get(`/rooms/${roomId}`),
-  
-  // Get all room types
-  getRoomTypes: () => api.get('/rooms/types'),
-  
-  // Check specific room availability
-  checkRoomAvailability: (roomId, checkIn, checkOut) => 
-    api.get(`/rooms/${roomId}/availability?checkIn=${checkIn}&checkOut=${checkOut}`),
+// --- Chambres ---
+export const roomAPI = {
+  getAll: () => api.get('/rooms'),
+  getById: (id) => api.get(`/rooms/${id}`),
+  // Disponibilité sur une période (correspond à GET /api/rooms/availability)
+  checkAvailability: (params) => api.get('/rooms/availability', { params }),
+};
+
+// --- Réservations ---
+export const reservationAPI = {
+  getAll: () => api.get('/reservations'),
+  getById: (id) => api.get(`/reservations/${id}`),
+  create: (data) => api.post('/reservations', data),
+  cancel: (id) => api.put(`/reservations/${id}/cancel`),
+};
+
+// --- Paiements (Stripe PaymentIntents) ---
+export const paymentAPI = {
+  // Crée un PaymentIntent et renvoie { clientSecret, paymentId }
+  pay: (data) => api.post('/payment/pay', data),
+  refund: (paymentIntentId) => api.post('/payment/refund', { paymentIntentId }),
+};
+
+// --- Statistiques (admin) ---
+export const statsAPI = {
+  get: () => api.get('/stats'),
+};
+
+// --- Réinitialisation de mot de passe ---
+export const resetAPI = {
+  requestReset: (email) => api.post('/reset/request-reset', { email }),
+  resetPassword: (email, token, newPassword) =>
+    api.post('/reset/reset-password', { email, token, newPassword }),
 };
 
 export default api;

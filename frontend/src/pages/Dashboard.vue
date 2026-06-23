@@ -13,8 +13,8 @@
         Chambres raffinées, service personnalisé, confort absolu.
       </p>
       <div class="hero-buttons">
-        <router-link to="/reservations" class="btn-primary">Réserver une chambre</router-link>
-        <router-link to="/availability" class="btn-secondary">Voir les disponibilités</router-link>
+        <router-link to="/rooms" class="btn-primary">Réserver une chambre</router-link>
+        <router-link to="/rooms" class="btn-secondary">Voir les disponibilités</router-link>
       </div>
       <div class="hero-stats">
         <div class="stat-item">
@@ -36,48 +36,6 @@
     <div class="scroll-indicator">
       <span>Découvrir</span>
       <div class="scroll-arrow">↓</div>
-    </div>
-  </section>
-
-  <!-- STATS -->
-  <section class="section-dashboard">
-    <div class="container">
-      <h2 class="section-title">Tableau de Bord</h2>
-      <p class="section-subtitle">Vue d'ensemble en temps réel</p>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-card-icon">💰</div>
-          <div class="stat-card-content">
-            <span class="stat-card-label">Revenus du mois</span>
-            <span class="stat-card-value">15 000 €</span>
-            <span class="stat-card-trend trend-up">↑ +12% ce mois</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-icon">🏨</div>
-          <div class="stat-card-content">
-            <span class="stat-card-label">Taux d'occupation</span>
-            <span class="stat-card-value">85%</span>
-            <div class="progress-bar"><div class="progress-fill" style="width:85%"></div></div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-icon">📅</div>
-          <div class="stat-card-content">
-            <span class="stat-card-label">Réservations actives</span>
-            <span class="stat-card-value">120</span>
-            <span class="stat-card-trend trend-up">↑ +8 aujourd'hui</span>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-icon">✅</div>
-          <div class="stat-card-content">
-            <span class="stat-card-label">Chambres disponibles</span>
-            <span class="stat-card-value">7</span>
-            <span class="stat-card-trend trend-neutral">sur 48 chambres</span>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -103,7 +61,7 @@
             <div class="room-amenities">
               <span v-for="a in room.amenities" :key="a" class="amenity-tag">{{ a }}</span>
             </div>
-            <router-link :to="room.available ? '/reservations' : '/availability'" class="room-cta">
+            <router-link to="/rooms" class="room-cta">
               {{ room.available ? 'Réserver maintenant' : 'Voir disponibilités' }}
             </router-link>
           </div>
@@ -123,23 +81,23 @@
       <div class="features-grid">
         <router-link to="/rooms" class="feature-card">
           <div class="feature-icon">🛏️</div>
-          <h3 class="feature-title">Chambres</h3>
-          <p class="feature-desc">Gérez votre inventaire de chambres, catégories, tarifs et équipements.</p>
+          <h3 class="feature-title">Nos Chambres</h3>
+          <p class="feature-desc">Découvrez nos chambres et suites, vérifiez les disponibilités et réservez en quelques clics.</p>
         </router-link>
-        <router-link to="/reservations" class="feature-card">
+        <router-link to="/espace-client" class="feature-card">
           <div class="feature-icon">📋</div>
-          <h3 class="feature-title">Réservations</h3>
-          <p class="feature-desc">Suivi complet des réservations : en attente, confirmées, annulées.</p>
+          <h3 class="feature-title">Espace Client</h3>
+          <p class="feature-desc">Retrouvez et gérez toutes vos réservations depuis votre espace personnel.</p>
         </router-link>
-        <router-link to="/payments" class="feature-card">
-          <div class="feature-icon">💳</div>
-          <h3 class="feature-title">Paiements</h3>
-          <p class="feature-desc">Historique des transactions, factures et rapports financiers.</p>
+        <router-link to="/about" class="feature-card">
+          <div class="feature-icon">✦</div>
+          <h3 class="feature-title">À propos</h3>
+          <p class="feature-desc">Quinze ans d'excellence et l'art de recevoir à la française.</p>
         </router-link>
-        <router-link to="/availability" class="feature-card">
-          <div class="feature-icon">📆</div>
-          <h3 class="feature-title">Disponibilité</h3>
-          <p class="feature-desc">Calendrier interactif pour visualiser et gérer les disponibilités.</p>
+        <router-link to="/contact" class="feature-card">
+          <div class="feature-icon">✉️</div>
+          <h3 class="feature-title">Contact</h3>
+          <p class="feature-desc">Une question ou une demande particulière ? Notre équipe vous répond 7j/7.</p>
         </router-link>
       </div>
     </div>
@@ -155,9 +113,9 @@
       <div class="footer-links">
         <router-link to="/">Accueil</router-link>
         <router-link to="/rooms">Chambres</router-link>
-        <router-link to="/reservations">Réservations</router-link>
-        <router-link to="/availability">Disponibilité</router-link>
-        <router-link to="/auth">Connexion</router-link>
+        <router-link to="/about">À propos</router-link>
+        <router-link to="/contact">Contact</router-link>
+        <router-link to="/espace-client">Espace Client</router-link>
       </div>
       <p class="footer-copy">© 2025 Hôtel Luxe. Tous droits réservés.</p>
     </div>

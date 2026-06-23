@@ -24,15 +24,12 @@
 
       <div class="bg-white rounded-lg shadow p-6">
         <h2 class="text-xl font-bold text-gray-900 mb-4">Actions Rapides</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <router-link to="/rooms" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 text-center">
             Gérer les Chambres
           </router-link>
-          <router-link to="/reservations" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 text-center">
+          <router-link to="/espace-client" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 text-center">
             Voir les Réservations
-          </router-link>
-          <router-link to="/payments" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 text-center">
-            Gérer les Paiements
           </router-link>
         </div>
       </div>

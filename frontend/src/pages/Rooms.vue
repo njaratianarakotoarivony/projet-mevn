@@ -13,6 +13,41 @@
       </div>
     </section>
 
+    <!-- ===== BARRE DE DISPONIBILITÉ ===== -->
+    <section class="filters-bar" style="padding-bottom:0;">
+      <div class="container">
+        <form class="avail-bar" @submit.prevent="searchAvailability">
+          <div class="avail-field">
+            <label>Arrivée</label>
+            <input v-model="stay.checkIn" type="date" :min="minDate" />
+          </div>
+          <div class="avail-field">
+            <label>Départ</label>
+            <input v-model="stay.checkOut" type="date" :min="stay.checkIn || minDate" />
+          </div>
+          <div class="avail-field">
+            <label>Personnes</label>
+            <select v-model.number="stay.guests">
+              <option :value="1">1 personne</option>
+              <option :value="2">2 personnes</option>
+              <option :value="3">3 personnes</option>
+              <option :value="4">4 personnes</option>
+            </select>
+          </div>
+          <button type="submit" class="avail-btn" :disabled="loading">
+            {{ loading ? 'Recherche…' : 'Vérifier la disponibilité' }}
+          </button>
+          <button v-if="availabilityMode" type="button" class="avail-reset" @click="clearAvailability">
+            ✕ Toutes les chambres
+          </button>
+        </form>
+        <p v-if="availabilityMode" class="avail-note">
+          Chambres disponibles du <strong>{{ stay.checkIn }}</strong> au <strong>{{ stay.checkOut }}</strong>
+          pour <strong>{{ stay.guests }}</strong> personne(s).
+        </p>
+      </div>
+    </section>
+
     <!-- ===== FILTRES & RECHERCHE ===== -->
     <section class="filters-bar">
       <div class="container">
@@ -137,12 +172,13 @@
                 <button class="btn-details" @click="openModal(room)">
                   Détails
                 </button>
-                <router-link
-                  :to="room.available ? '/reservations' : '/availability'"
+                <button
                   :class="['btn-reserve', !room.available && 'btn-reserve--disabled']"
+                  :disabled="!room.available"
+                  @click="goReserve(room)"
                 >
                   {{ room.available ? 'Réserver' : 'Indisponible' }}
-                </router-link>
+                </button>
               </div>
             </div>
           </article>
@@ -211,119 +247,142 @@
             <!-- CTA modal -->
             <div class="modal-actions">
               <button class="btn-close-modal" @click="closeModal">Fermer</button>
-              <router-link
-                :to="selectedRoom.available ? '/reservations' : '/availability'"
+              <button
                 class="btn-reserve"
-                @click="closeModal"
+                :disabled="!selectedRoom.available"
+                @click="goReserve(selectedRoom)"
               >
-                {{ selectedRoom.available ? '📅 Réserver cette chambre' : '📆 Voir disponibilités' }}
-              </router-link>
+                {{ selectedRoom.available ? '📅 Réserver cette chambre' : 'Indisponible' }}
+              </button>
             </div>
           </div>
         </div>
       </div>
     </transition>
 
+    <!-- ===== OVERLAY RÉSERVATION → PAIEMENT ===== -->
+    <BookingModal
+      v-if="bookingRoom"
+      :room="bookingRoom"
+      :prefill="bookingPrefill"
+      @close="closeBooking"
+    />
+
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { roomAPI } from '../services/api'
+import BookingModal from '../components/BookingModal.vue'
 import '../assets/rooms.css'
 
+// Chambre en cours de réservation (ouvre l'overlay si non null).
+const bookingRoom = ref(null)
+const bookingPrefill = ref({})
+
 /* ===== DONNÉES ===== */
-const rooms = ref([
-  {
-    id: 1,
-    name: 'Suite Présidentielle',
-    category: 'Suite',
-    price: 450,
-    size: 85,
-    capacity: 2,
-    floor: 8,
-    bed: 'King Size',
-    featured: true,
-    available: true,
-    description: 'Notre chambre la plus prestigieuse, avec vue panoramique sur la ville, jacuzzi privatif, salon séparé et service en chambre 24h/24.',
-    image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900&q=85',
-    amenities: ['Jacuzzi privatif', 'Vue panoramique', 'King Size', 'Mini-bar premium', 'WiFi fibre', 'Climatisation', 'Coffre-fort', 'Room service 24h'],
-  },
-  {
-    id: 2,
-    name: 'Suite Junior',
-    category: 'Suite',
-    price: 320,
-    size: 60,
-    capacity: 2,
-    floor: 6,
-    bed: 'King Size',
-    featured: false,
-    available: true,
-    description: 'Suite élégante avec espace salon, baignoire balnéo et vue dégagée. Idéale pour un séjour romantique ou une occasion spéciale.',
-    image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=900&q=85',
-    amenities: ['Baignoire balnéo', 'Salon séparé', 'King Size', 'Mini-bar', 'WiFi fibre', 'Climatisation', 'Coffre-fort'],
-  },
-  {
-    id: 3,
-    name: 'Chambre Deluxe',
-    category: 'Deluxe',
-    price: 220,
-    size: 42,
-    capacity: 2,
-    floor: 4,
-    bed: 'Queen Size',
-    featured: true,
-    available: true,
-    description: 'Espace élégant avec literie haut de gamme, bureau de travail ergonomique et salle de bain en marbre. Parfait pour affaires ou loisirs.',
-    image: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=900&q=85',
-    amenities: ['Queen Size', 'Baignoire marbre', 'Bureau ergonomique', 'WiFi fibre', 'Climatisation', 'TV 55"', 'Coffre-fort'],
-  },
-  {
-    id: 4,
-    name: 'Chambre Familiale',
-    category: 'Familiale',
-    price: 280,
-    size: 55,
-    capacity: 4,
-    floor: 3,
-    bed: '2 Grands Lits',
-    featured: false,
-    available: false,
-    description: 'Grande chambre conçue pour les familles, avec deux espaces nuit séparés, salle de bain double vasque et coin détente pour les enfants.',
-    image: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=900&q=85',
-    amenities: ['2 Grands lits', 'Double vasque', 'Canapé-lit', 'WiFi fibre', 'TV 55"', 'Climatisation', 'Coffre-fort'],
-  },
-  {
-    id: 5,
-    name: 'Chambre Standard',
-    category: 'Standard',
-    price: 120,
-    size: 28,
-    capacity: 1,
-    floor: 2,
-    bed: 'Double',
-    featured: false,
-    available: true,
-    description: 'Confort et simplicité réunis. Idéale pour les séjours professionnels courts, avec tout l\'essentiel pour un repos parfait.',
-    image: 'https://images.unsplash.com/photo-1505693314120-0d443867891c?w=900&q=85',
-    amenities: ['Lit double', 'Douche italienne', 'WiFi', 'TV 4K', 'Climatisation'],
-  },
-  {
-    id: 6,
-    name: 'Chambre Vue Jardin',
-    category: 'Standard',
-    price: 150,
-    size: 32,
-    capacity: 2,
-    floor: 1,
-    bed: 'Queen Size',
-    featured: false,
-    available: true,
-    description: 'Chambre calme avec vue directe sur notre jardin intérieur. Ambiance apaisante, lumière naturelle et décoration soignée.',
-    image: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=900&q=85',
-    amenities: ['Vue jardin', 'Queen Size', 'Baignoire', 'WiFi', 'TV 4K', 'Climatisation'],
-  },
-])
+const rooms   = ref([])
+const loading = ref(false)
+const error   = ref('')
+
+/* ===== DISPONIBILITÉ (dates) ===== */
+const minDate = computed(() => new Date().toISOString().split('T')[0])
+const stay = ref({ checkIn: '', checkOut: '', guests: 2 })
+const availabilityMode = ref(false)
+
+// Image de repli par catégorie (le backend ne stocke pas toujours d'images).
+const FALLBACK_IMAGES = {
+  Luxe:      'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900&q=85',
+  Suite:     'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=900&q=85',
+  Familiale: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=900&q=85',
+  Standard:  'https://images.unsplash.com/photo-1505693314120-0d443867891c?w=900&q=85',
+}
+
+// Mappe une chambre du backend vers la forme attendue par le template.
+function mapRoom(r) {
+  return {
+    id:          r._id,
+    name:        r.name,
+    category:    r.type,
+    price:       r.price,
+    capacity:    r.capacity,
+    available:   r.available,
+    description: r.description || '',
+    amenities:   r.amenities || [],
+    image:       (r.images && r.images[0]) || FALLBACK_IMAGES[r.type] || FALLBACK_IMAGES.Standard,
+    featured:    r.type === 'Luxe' || r.type === 'Suite',
+    // Champs non stockés côté backend : valeurs dérivées pour l'affichage.
+    size:        r.capacity * 20,
+    floor:       '—',
+    bed:         r.capacity > 2 ? '2 Grands Lits' : 'Queen Size',
+  }
+}
+
+async function fetchRooms() {
+  loading.value = true
+  error.value = ''
+  try {
+    const { data } = await roomAPI.getAll()
+    rooms.value = data.map(mapRoom)
+  } catch (err) {
+    error.value = err.response?.data?.message || 'Impossible de charger les chambres.'
+  } finally {
+    loading.value = false
+  }
+}
+
+// Recherche les chambres réellement libres sur la période choisie.
+async function searchAvailability() {
+  if (!stay.value.checkIn || !stay.value.checkOut) {
+    error.value = 'Choisis une date d’arrivée et de départ.'
+    return
+  }
+  loading.value = true
+  error.value = ''
+  try {
+    const { data } = await roomAPI.checkAvailability({
+      checkIn: stay.value.checkIn,
+      checkOut: stay.value.checkOut,
+      guests: stay.value.guests,
+    })
+    rooms.value = data.map(mapRoom)
+    availabilityMode.value = true
+  } catch (err) {
+    error.value = err.response?.data?.message || 'Erreur lors de la recherche de disponibilité.'
+  } finally {
+    loading.value = false
+  }
+}
+
+function clearAvailability() {
+  availabilityMode.value = false
+  stay.value = { checkIn: '', checkOut: '', guests: 2 }
+  fetchRooms()
+}
+
+// Ouvre l'overlay de réservation (réservation → paiement) pour la chambre choisie.
+function goReserve(room) {
+  if (!room.available) return
+  // BookingModal attend une chambre au format backend (_id, type, price, capacity…).
+  bookingRoom.value = {
+    _id: room.id,
+    name: room.name,
+    type: room.category,
+    price: room.price,
+    capacity: room.capacity,
+  }
+  bookingPrefill.value = availabilityMode.value
+    ? { checkIn: stay.value.checkIn, checkOut: stay.value.checkOut, guests: stay.value.guests }
+    : {}
+  closeModal()
+}
+
+function closeBooking() {
+  bookingRoom.value = null
+}
+
+onMounted(fetchRooms)
 
 /* ===== FILTRES ===== */
 const search         = ref('')
@@ -333,8 +392,8 @@ const selectedRoom   = ref(null)
 
 const categories = [
   { label: 'Toutes',    value: 'Tous'      },
+  { label: 'Luxe',      value: 'Luxe'      },
   { label: 'Suite',     value: 'Suite'     },
-  { label: 'Deluxe',    value: 'Deluxe'   },
   { label: 'Familiale', value: 'Familiale' },
   { label: 'Standard',  value: 'Standard'  },
 ]
@@ -381,3 +440,60 @@ function closeModal() {
   document.body.style.overflow = ''
 }
 </script>
+
+<style scoped>
+.avail-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  background: #fff;
+  border: 1px solid #ece6d8;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+}
+.avail-field { display: flex; flex-direction: column; gap: 0.35rem; }
+.avail-field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8a7f6a;
+}
+.avail-field input,
+.avail-field select {
+  border: 1px solid #d8d0bf;
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
+  color: #2b2b2b;
+  background: #fdfcf9;
+  min-width: 150px;
+}
+.avail-btn {
+  background: #c9a84c;
+  color: #1a1a1a;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.4rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.avail-btn:hover:not(:disabled) { background: #e8c97e; }
+.avail-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.avail-reset {
+  background: none;
+  border: none;
+  color: #8a7f6a;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: underline;
+}
+.avail-note {
+  margin-top: 0.85rem;
+  color: #5c5443;
+  font-size: 0.95rem;
+}
+</style>

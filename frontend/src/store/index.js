@@ -1,96 +1,42 @@
-import api from '../services/api';
+import { reactive, computed } from 'vue';
+import { authAPI } from '../services/api';
 
-// Simple state management without Pinia
-const state = {
-  user: null,
+// État global réactif partagé par toute l'application.
+const state = reactive({
+  user: JSON.parse(localStorage.getItem('user') || 'null'),
   token: localStorage.getItem('token') || null,
-  isAuthenticated: false,
-  rooms: [],
-  currentRoom: null,
-  reservations: [],
-  currentReservation: null,
-};
+});
 
-export const authStore = {
+export const auth = {
+  state,
+  isAuthenticated: computed(() => !!state.token),
+  isAdmin: computed(() => state.user?.role === 'admin'),
+
   async login(email, password) {
-    try {
-      const response = await api.post('/auth/login', { email, password });
-      state.token = response.data.token;
-      state.user = response.data.user;
-      state.isAuthenticated = true;
-      localStorage.setItem('token', response.data.token);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const { data } = await authAPI.login(email, password);
+    this._persist(data);
+    return data;
   },
+
   async register(name, email, password) {
-    try {
-      const response = await api.post('/auth/register', { name, email, password });
-      state.token = response.data.token;
-      state.user = response.data.user;
-      state.isAuthenticated = true;
-      localStorage.setItem('token', response.data.token);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
+    const { data } = await authAPI.register(name, email, password);
+    this._persist(data);
+    return data;
   },
+
   logout() {
-    state.token = null;
     state.user = null;
-    state.isAuthenticated = false;
+    state.token = null;
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
   },
-  getState() {
-    return { user: state.user, token: state.token, isAuthenticated: state.isAuthenticated };
+
+  _persist(data) {
+    state.token = data.token;
+    state.user = data.user;
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
   },
 };
 
-export const roomStore = {
-  async fetchRooms() {
-    try {
-      const response = await api.get('/rooms');
-      state.rooms = response.data;
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
-  async fetchRoomById(id) {
-    try {
-      const response = await api.get(`/rooms/${id}`);
-      state.currentRoom = response.data;
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
-  getState() {
-    return { rooms: state.rooms, currentRoom: state.currentRoom };
-  },
-};
-
-export const reservationStore = {
-  async fetchReservations() {
-    try {
-      const response = await api.get('/reservations');
-      state.reservations = response.data;
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
-  async createReservation(reservationData) {
-    try {
-      const response = await api.post('/reservations', reservationData);
-      state.reservations.push(response.data);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
-  getState() {
-    return { reservations: state.reservations, currentReservation: state.currentReservation };
-  },
-};
+export default auth;

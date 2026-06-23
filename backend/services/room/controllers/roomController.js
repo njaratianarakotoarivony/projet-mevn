@@ -1,4 +1,41 @@
 import Room from '../models/Room.js';
+import Reservation from '../../reservation/models/Reservation.js';
+
+// GET /api/rooms/availability?checkIn=&checkOut=&guests=
+// Renvoie les chambres assez grandes et libres sur la période demandée.
+const getAvailableRooms = async (req, res, next) => {
+  try {
+    const { checkIn, checkOut, guests } = req.query;
+    if (!checkIn || !checkOut) {
+      return res.status(400).json({ message: 'checkIn et checkOut requis' });
+    }
+
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) {
+      return res.status(400).json({ message: 'Plage de dates invalide' });
+    }
+
+    // Chambres bloquées par une réservation active chevauchant la période.
+    const overlapping = await Reservation.find({
+      status: 'confirmée',
+      checkIn: { $lt: end },
+      checkOut: { $gt: start },
+    }).select('roomId');
+    const bookedIds = overlapping.map((r) => r.roomId);
+
+    const filter = { _id: { $nin: bookedIds } };
+    const guestCount = Number(guests);
+    if (guestCount > 0) {
+      filter.capacity = { $gte: guestCount };
+    }
+
+    const rooms = await Room.find(filter);
+    res.json(rooms);
+  } catch (error) {
+    next(error);
+  }
+};
 
 const getAllRooms = async (req, res, next) => {
   try {
@@ -55,4 +92,4 @@ const deleteRoom = async (req, res, next) => {
   }
 };
 
-export { getAllRooms, getRoomById, createRoom, updateRoom, deleteRoom };
+export { getAvailableRooms, getAllRooms, getRoomById, createRoom, updateRoom, deleteRoom };

@@ -8,16 +8,14 @@ const getStats = async (req, res, next) => {
     const totalReservations = await Reservation.countDocuments();
     const confirmedReservations = await Reservation.countDocuments({ status: 'confirmée' });
     
-    const reservations = await Reservation.find({ status: 'confirmée' });
-    let totalRevenue = 0;
-    
-    for (const reservation of reservations) {
-      const room = await Room.findById(reservation.roomId);
-      if (room) {
-        totalRevenue += room.price;
-      }
-    }
-    
+    // Revenu = somme des montants réellement facturés (prix × nb de nuits),
+    // déjà stocké dans `totalPrice` à la création de la réservation.
+    const [revenueAgg] = await Reservation.aggregate([
+      { $match: { status: 'confirmée' } },
+      { $group: { _id: null, total: { $sum: '$totalPrice' } } },
+    ]);
+    const totalRevenue = revenueAgg?.total || 0;
+
     const stats = {
       totalRevenue,
       totalRooms,

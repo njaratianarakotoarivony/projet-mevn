@@ -1,8 +1,11 @@
 import { Router } from 'express';
-import { verify2FA } from '../controllers/2faController.js';
+import { enroll2FA, verify2FA, disable2FA } from '../controllers/2faController.js';
+import { verifyToken } from '../../../middlewares/auth.js';
 
 const router = Router();
 
-router.post('/verify-2fa', verify2FA);
+router.post('/enroll', verifyToken, enroll2FA);
+router.post('/verify', verifyToken, verify2FA);
+router.post('/disable', verifyToken, disable2FA);
 
 export default router;
