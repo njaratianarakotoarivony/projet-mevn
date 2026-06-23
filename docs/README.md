@@ -121,21 +121,10 @@ npm run dev                 # interface sur http://localhost:8080
 > Le port **8080** correspond à `FRONTEND_URL` côté backend (CORS). Le frontend cible
 > l'API via `VITE_API_URL` (par défaut `http://localhost:3000/api`).
 
-### Compte administrateur par défaut (après seed)
-- **Email** : `admin@hotel.com`
-- **Mot de passe** : `admin123`
-
-### Variables d'environnement (`backend/.env`)
-| Variable | Rôle |
-|----------|------|
-| `PORT` | Port du serveur (def. 3000) |
-| `MONGO_URI` | Connexion MongoDB |
-| `JWT_SECRET` | Secret de signature des tokens |
-| `STRIPE_SECRET_KEY` | Clé secrète Stripe (test) |
-| `STRIPE_WEBHOOK_SECRET` | Secret du webhook Stripe (optionnel en dev) |
-| `FRONTEND_URL` | Origine autorisée par le CORS |
-| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `EMAIL_FROM` | Service email (sans SMTP, les emails sont loggés en console) |
-| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Compte admin créé au seed |
+### Configuration & identifiants
+Le modèle des variables d'environnement est dans [`backend/.env.example`](../backend/.env.example).
+Les **valeurs locales et le compte admin par défaut** sont documentés dans un fichier
+non versionné `docs/CONFIG.local.md` (ignoré par git).
 
 ---
 

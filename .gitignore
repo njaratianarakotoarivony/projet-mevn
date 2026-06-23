@@ -12,6 +12,10 @@ pnpm-lock.yaml
 .env.local
 .env.*.local
 
+# Configuration locale / secrets (doc non versionnée)
+CONFIG.local.md
+**/CONFIG.local.md
+
 # Build outputs
 dist/
 build/
